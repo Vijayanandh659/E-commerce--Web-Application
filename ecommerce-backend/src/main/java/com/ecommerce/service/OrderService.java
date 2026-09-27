@@ -1,9 +1,6 @@
 package com.ecommerce.service;
 
 import com.ecommerce.dto.CheckoutRequest;
-import com.ecommerce.dto.OrderItemResponse;
-import com.ecommerce.dto.OrderResponse;
-import com.ecommerce.dto.ProductSummaryResponse;
 import com.ecommerce.exception.BadRequestException;
 import com.ecommerce.exception.ResourceNotFoundException;
 import com.ecommerce.model.*;
@@ -28,7 +25,7 @@ public class OrderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public OrderResponse checkout(String userEmail, CheckoutRequest request) {
+    public Order checkout(String userEmail, CheckoutRequest request) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -79,20 +76,16 @@ public class OrderService {
         // Clear the cart
         cartItemRepository.deleteAll(cartItems);
 
-        return toResponse(orderRepository.findById(saved.getId()).orElse(saved));
+        return saved;
     }
 
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersForUser(String userEmail) {
+    public List<Order> getOrdersForUser(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return orderRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).stream()
-                .map(this::toResponse)
-                .toList();
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
     }
 
-    @Transactional(readOnly = true)
-    public OrderResponse getOrderById(String userEmail, Long orderId) {
+    public Order getOrderById(String userEmail, Long orderId) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -103,19 +96,7 @@ public class OrderService {
             throw new BadRequestException("This order does not belong to you");
         }
 
-        return toResponse(order);
-    }
-
-    private OrderResponse toResponse(Order order) {
-        List<OrderItemResponse> items = order.getItems().stream()
-                .map(item -> new OrderItemResponse(
-                        item.getId(), new ProductSummaryResponse(
-                                item.getProduct().getId(), item.getProduct().getName(), item.getProduct().getImageUrl()
-                        ), item.getQuantity(), item.getPrice()
-                ))
-                .toList();
-        return new OrderResponse(order.getId(), order.getTotalAmount(), order.getStatus(),
-                order.getShippingAddress(), order.getCreatedAt(), items);
+        return order;
     }
 
     public List<Order> getAllOrders() {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import { useCart } from '../context/CartContext'
@@ -10,10 +10,6 @@ export default function Checkout() {
   const [error, setError] = useState('')
   const [placing, setPlacing] = useState(false)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    fetchCart()
-  }, [fetchCart])
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault()
@@ -41,8 +37,8 @@ export default function Checkout() {
       <div className="order-review">
         {cartItems.map((item) => (
           <div key={item.id} className="order-review-row">
-            <span>{item.product?.name} x {item.quantity}</span>
-            <span>{formatCurrency(Number(item.product?.price || 0) * item.quantity)}</span>
+            <span>{item.product.name} x {item.quantity}</span>
+            <span>{formatCurrency(item.product.price * item.quantity)}</span>
           </div>
         ))}
         <div className="order-review-row total">

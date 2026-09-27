@@ -11,13 +11,11 @@ import com.ecommerce.repository.ProductRepository;
 import com.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CartService {
 
     private final CartItemRepository cartItemRepository;
@@ -41,11 +39,7 @@ public class CartService {
         CartItem existing = cartItemRepository.findByUserIdAndProductId(user.getId(), product.getId()).orElse(null);
 
         if (existing != null) {
-            int newQuantity = existing.getQuantity() + request.getQuantity();
-            if (newQuantity > product.getStock()) {
-                throw new BadRequestException("Only " + product.getStock() + " units of " + product.getName() + " available");
-            }
-            existing.setQuantity(newQuantity);
+            existing.setQuantity(existing.getQuantity() + request.getQuantity());
             return cartItemRepository.save(existing);
         }
 
@@ -65,11 +59,6 @@ public class CartService {
 
         if (!item.getUser().getId().equals(user.getId())) {
             throw new BadRequestException("This cart item does not belong to you");
-        }
-
-        if (quantity == null || quantity < 1) {
-            cartItemRepository.delete(item);
-            return item;
         }
 
         if (quantity > item.getProduct().getStock()) {

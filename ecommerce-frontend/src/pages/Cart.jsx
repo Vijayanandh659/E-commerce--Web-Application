@@ -26,19 +26,19 @@ export default function Cart() {
       <div className="cart-list">
         {cartItems.map((item) => (
           <div key={item.id} className="cart-row">
-            <img src={item.product?.imageUrl} alt={item.product?.name} className="cart-thumb" />
+            <img src={item.product.imageUrl} alt={item.product.name} className="cart-thumb" />
             <div className="cart-row-info">
-              <h4>{item.product?.name}</h4>
-              <p>{formatCurrency(item.product?.price)} each</p>
+              <h4>{item.product.name}</h4>
+              <p>{formatCurrency(item.product.price)} each</p>
             </div>
             <input
               type="number"
               min="1"
-              max={item.product?.stock || 1}
+              max={item.product.stock}
               value={item.quantity}
               onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
             />
-            <p className="line-total">{formatCurrency(Number(item.product?.price || 0) * item.quantity)}</p>
+            <p className="line-total">{formatCurrency(item.product.price * item.quantity)}</p>
             <button className="link-btn danger" onClick={() => removeFromCart(item.id)}>Remove</button>
           </div>
         ))}

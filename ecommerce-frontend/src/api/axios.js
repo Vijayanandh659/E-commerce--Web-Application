@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://e-commerce-py29.onrender.com/api',
+  baseURL: 'http://localhost:8080/api',
 })
 
 // Attach JWT token to every request if present
@@ -17,8 +17,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isAuthRequest = error.config?.url?.includes('/auth/')
-    if (error.response && error.response.status === 401 && !isAuthRequest) {
+    if (error.response && error.response.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       window.location.href = '/login'

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useState, useCallback } from 'react'
 import api from '../api/axios'
 import { useAuth } from './AuthContext'
 
@@ -13,12 +13,8 @@ export function CartProvider({ children }) {
       setCartItems([])
       return
     }
-    try {
-      const { data } = await api.get('/cart')
-      setCartItems(Array.isArray(data) ? data : [])
-    } catch {
-      setCartItems([])
-    }
+    const { data } = await api.get('/cart')
+    setCartItems(data)
   }, [isAuthenticated])
 
   const addToCart = async (productId, quantity = 1) => {
@@ -38,11 +34,8 @@ export function CartProvider({ children }) {
 
   const clearLocalCart = () => setCartItems([])
 
-  const cartTotal = cartItems.reduce((sum, item) => {
-    const price = item.product?.price ?? 0
-    return sum + price * (item.quantity || 0)
-  }, 0)
-  const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)
+  const cartTotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
     <CartContext.Provider
