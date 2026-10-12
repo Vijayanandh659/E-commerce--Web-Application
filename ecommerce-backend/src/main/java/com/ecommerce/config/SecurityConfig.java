@@ -54,14 +54,20 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
+			.authorizeHttpRequests(auth -> auth
+			    .requestMatchers("/", "/error").permitAll()
+			    .requestMatchers("/api/auth/**").permitAll()
+			    .requestMatchers(
+			        HttpMethod.GET,
+			        "/api/products", "/api/products/**",
+			        "/api/categories", "/api/categories/**"
+			    ).permitAll()
+			    .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+			    .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+			    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+			    .anyRequest().authenticated()
+			)
+
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
